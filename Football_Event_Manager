@@ -1,0 +1,475 @@
+#include <iostream>
+#include<string>
+#include<limits>
+using namespace std;
+
+struct Player {
+    string name;
+};
+
+struct Teams {
+    string name;
+    string department;
+    string id;
+    int section;
+    int year;
+    bool topTeam = false;
+    bool grouped = false;
+    int win = 0;
+    int loses = 0;
+    int draw = 0;
+    int played = 0;
+    int points = 0;
+    Player player[10];
+    int numberOfPlayer = 0;
+};
+
+struct group {
+    string name;
+    Teams groupTeam[4];
+};
+
+const int NUM_GROUPS = 4;
+const int MAX_TEAMS = 16;
+group groups[NUM_GROUPS];
+Teams team[MAX_TEAMS];
+Teams topTeams[8];
+int numberofTeam = 0;
+int numberOfTeamToAdd = 0;
+
+void Menu();
+
+void AddTeams() {
+    cout << "How many teams do you want to add (Max: " << MAX_TEAMS << ")" << endl;
+    cin >> numberOfTeamToAdd;
+    
+    if(cin.fail() || numberofTeam+numberOfTeamToAdd>16 || numberofTeam+numberOfTeamToAdd<=0) {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cout << "You cannot register more than 16 teams or less than 1 team" << endl;
+    }
+    else if (numberofTeam + numberOfTeamToAdd <= MAX_TEAMS) {
+        for (int i = numberofTeam; i < numberofTeam + numberOfTeamToAdd; i++) {
+            cout << "Enter the name of team " << i + 1 << ": ";
+            cin >> team[i].name;
+            
+            cout << "Enter the department of team " << i + 1 << ": ";
+            cin >> team[i].department;
+            
+            cout << "Enter the year of team " << i + 1 << ": ";
+            cin >> team[i].year;
+            
+            cout << "Enter the section of team " << i + 1 << ": ";
+            cin >> team[i].section;
+            
+            team[i].numberOfPlayer = 0;
+        }
+        numberofTeam += numberOfTeamToAdd;
+        system("cls");
+        cout << "Team Has Been Registered Successfully" << endl;
+    }
+}
+
+void DisplayEverything() {
+    system("cls");
+    if (numberofTeam == 0)
+        cout << "There are no teams" << endl;
+    else {
+        for (int i = 0; i < numberofTeam; i++) {
+            cout << team[i].name << endl;
+            cout << "-------------" << endl;
+            for (int j = 0; j < team[i].numberOfPlayer; j++) {
+                cout << j+1 << ". " << team[i].player[j].name << endl;
+            }
+            cout << endl;
+        }
+    }
+}
+
+void AddPlayer() {
+    system("cls");
+    if (numberofTeam == 0) {
+        cout << "There are no teams available \nAdd teams first" << endl;
+        return;
+    }
+    
+    cout << "List Of Available Teams" << endl;
+    cout << "-----------------------" << endl;
+    
+    for (int i = 0; i < numberofTeam; i++) {
+        cout << i << " " << team[i].name << endl;
+    }
+    
+    cout << "-----------------------" << endl;
+    cout << "Choose A Team To Add Players To..." << endl;
+    
+    int teamChoice;
+    cin >> teamChoice;
+    
+    if(cin.fail() || teamChoice < 0 || teamChoice >= numberofTeam) {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cout << "Invalid team choice!" << endl;
+        return;
+    }
+    
+    system("cls");
+    cout << team[teamChoice].name << endl;
+    cout << "-----------------------" << endl;
+    
+    cout << "How many players do you want to add (max 10)? " << endl;
+    int numberOfPlayersToADD;
+    cin >> numberOfPlayersToADD;
+    
+    if(cin.fail() || numberOfPlayersToADD <= 0 || team[teamChoice].numberOfPlayer + numberOfPlayersToADD > 10) {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cout << "You cannot add more than 10 players to a team or less than 1 player" << endl;
+        return;
+    }
+    
+    for (int j = team[teamChoice].numberOfPlayer; j < team[teamChoice].numberOfPlayer + numberOfPlayersToADD; j++) {
+        cout << "Enter the name of the player " << j + 1 << ": ";
+        cin >> team[teamChoice].player[j].name;
+    }
+    team[teamChoice].numberOfPlayer += numberOfPlayersToADD;
+    system("cls");
+    cout << "Players Has Been Registered Successfully" << endl;
+}
+
+void AddGroup() {
+    system("cls");
+    
+    if (numberofTeam < 4) {
+        cout << "There Is Not Enough Team Available... (Add At least 4 Teams)\n" << endl;
+        return;
+    }
+    
+    cout << "Choose a group to add teams to" << endl;
+    cout << "------------------------------" << endl;
+    
+    for (int k = 0; k < NUM_GROUPS; k++) {
+        cout << k << " " << groups[k].name << endl;
+    }
+    cout << "------------------------------" << endl;
+    
+    int groupChoice;
+    cin >> groupChoice;
+    
+    if(cin.fail() || groupChoice < 0 || groupChoice >= NUM_GROUPS) {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cout << "Invalid group choice!" << endl;
+        return;
+    }
+    
+    system("cls");
+    
+    cout << "Available Teams" << endl;
+    cout << "---------------" << endl;
+    
+    for (int l = 0; l < numberofTeam; l++) {
+        if (!team[l].grouped) {
+            cout << l << " " << team[l].name << endl;
+        }
+    }
+    cout << "---------------" << endl;
+    
+    int teamChoice;
+    int teamsAdded = 0;
+    
+    for (int m = 0; m < 4; m++) {
+        cout << "Choose A Team To Add (Team " << m+1 << " of 4)..." << endl;
+        cin >> teamChoice;
+        
+        if(cin.fail() || teamChoice < 0 || teamChoice >= numberofTeam || team[teamChoice].grouped) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Invalid or already grouped team! Try again." << endl;
+            m--;
+            continue;
+        }
+        
+        groups[groupChoice].groupTeam[m] = team[teamChoice];
+        team[teamChoice].grouped = true;
+        teamsAdded++;
+    }
+    
+    if(teamsAdded == 4) {
+        system("cls");
+        cout << "Teams added to group successfully!" << endl;
+    }
+}
+
+void InitializeGroup() {
+    string groupNames[NUM_GROUPS] = { "Group One", "Group Two", "Group Three", "Group Four" };
+    for (int i = 0; i < NUM_GROUPS; ++i) {
+        groups[i].name = groupNames[i];
+    }
+}
+
+void DisplayGroupMatch() {
+    system("cls");
+    
+    cout << "Choose a group to view Matches" << endl;
+    cout << "-----------------------------" << endl;
+    
+    for (int k = 0; k < NUM_GROUPS; k++) {
+        cout << k << " " << groups[k].name << endl;
+    }
+    cout << "-----------------------------" << endl;
+    
+    int groupChoice;
+    cin >> groupChoice;
+    
+    if(cin.fail() || groupChoice < 0 || groupChoice >= NUM_GROUPS) {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cout << "Invalid group choice!" << endl;
+        return;
+    }
+    
+    system("cls");
+    
+    cout << groups[groupChoice].name << " Matches" << endl;
+    cout << "--------------------------------" << endl;
+    
+    cout << "-------------" << endl;
+    cout << "Game Week One" << endl;
+    cout << "-------------" << endl;
+    cout << groups[groupChoice].groupTeam[0].name << " vs " << groups[groupChoice].groupTeam[1].name << endl;
+    cout << groups[groupChoice].groupTeam[2].name << " vs " << groups[groupChoice].groupTeam[3].name << endl;
+    
+    cout << "\n-------------" << endl;
+    cout << "Game Week Two" << endl;
+    cout << "-------------" << endl;
+    cout << groups[groupChoice].groupTeam[0].name << " vs " << groups[groupChoice].groupTeam[2].name << endl;
+    cout << groups[groupChoice].groupTeam[1].name << " vs " << groups[groupChoice].groupTeam[3].name << endl;
+    
+    cout << "\n---------------" << endl;
+    cout << "Game Week Three" << endl;
+    cout << "---------------" << endl;
+    cout << groups[groupChoice].groupTeam[0].name << " vs " << groups[groupChoice].groupTeam[3].name << endl;
+    cout << groups[groupChoice].groupTeam[1].name << " vs " << groups[groupChoice].groupTeam[2].name << endl;
+    
+    cout << "\n---------------" << endl;
+}
+
+void UpdateStanding() {
+    system("cls");
+    
+    bool hasTeams = false;
+    for(int i = 0; i < NUM_GROUPS; i++) {
+        if(groups[i].groupTeam[0].name != "") {
+            hasTeams = true;
+            break;
+        }
+    }
+    
+    if(!hasTeams) {
+        cout << "No teams have been assigned to groups yet!" << endl;
+        return;
+    }
+    
+    cout << "-------------------------------------" << endl;
+    cout << "Group Standings to be Updated" << endl;
+    cout << "-------------------------------------" << endl;
+    
+    for (int i = 0; i < NUM_GROUPS; i++) {
+        if(groups[i].groupTeam[0].name == "") continue;
+        
+        cout << i << " Group " << groups[i].name << " Standings" << endl;
+        cout << "-------------------------------------" << endl;
+        
+        for (int j = 0; j < 4; j++) {
+            if(groups[i].groupTeam[j].name != "") {
+                cout << j << " " << groups[i].groupTeam[j].name;
+                cout << " | Played: " << groups[i].groupTeam[j].played;
+                cout << " | Wins: " << groups[i].groupTeam[j].win;
+                cout << " | Losses: " << groups[i].groupTeam[j].loses;
+                cout << " | Draws: " << groups[i].groupTeam[j].draw;
+                cout << " | Points: " << groups[i].groupTeam[j].points << endl;
+            }
+        }
+        cout << "-------------------------------------" << endl;
+    }
+    
+    cout << "Choose A Group...\n" << endl;
+    
+    int groupChoice;
+    cin >> groupChoice;
+    
+    if(cin.fail() || groupChoice < 0 || groupChoice >= NUM_GROUPS || groups[groupChoice].groupTeam[0].name == "") {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cout << "Invalid group choice!" << endl;
+        return;
+    }
+    
+    for (int m = 0; m < 4; m++) {
+        if(groups[groupChoice].groupTeam[m].name == "") continue;
+        
+        cout << "\n-------------------------------------" << endl;
+        cout << groups[groupChoice].groupTeam[m].name << endl;
+        cout << "-------------------------------------" << endl;
+        
+        cout << "Enter Played Value: ";
+        cin >> groups[groupChoice].groupTeam[m].played;
+        
+        cout << "Enter Win Value: ";
+        cin >> groups[groupChoice].groupTeam[m].win;
+        
+        cout << "Enter Lose Value: ";
+        cin >> groups[groupChoice].groupTeam[m].loses;
+        
+        cout << "Enter Draw Value: ";
+        cin >> groups[groupChoice].groupTeam[m].draw;
+        
+        cout << "Enter Point Value: ";
+        cin >> groups[groupChoice].groupTeam[m].points;
+        
+        system("cls");
+    }
+    cout << "Standings updated successfully!" << endl;
+}
+
+void DisplayTopTeam() {
+    system("cls");
+    
+    cout << "-------------------------------------" << endl;
+    cout << "Top Teams" << endl;
+    cout << "-------------------------------------" << endl;
+    
+    int topTeamIndex = 0;
+    
+    for (int o = 0; o < NUM_GROUPS; o++) {
+        if(groups[o].groupTeam[0].name == "") continue;
+        
+        Teams sortedTeam[4];
+        
+        for (int j = 0; j < 4; ++j) {
+            sortedTeam[j] = groups[o].groupTeam[j];
+        }
+        
+        cout << "\nGroup " << groups[o].name << endl;
+        cout << "-------------------------------------" << endl;
+        
+        for (int j = 0; j < 4; ++j) {
+            for (int k = 0; k < 3 - j; ++k) {
+                if (sortedTeam[k].points < sortedTeam[k + 1].points) {
+                    Teams temp = sortedTeam[k];
+                    sortedTeam[k] = sortedTeam[k + 1];
+                    sortedTeam[k + 1] = temp;
+                }
+            }
+        }
+        
+        cout << "1st: " << sortedTeam[0].name << " - Points: " << sortedTeam[0].points << endl;
+        cout << "2nd: " << sortedTeam[1].name << " - Points: " << sortedTeam[1].points << endl;
+        
+        if(topTeamIndex < 8) {
+            topTeams[topTeamIndex++] = sortedTeam[0];
+            topTeams[topTeamIndex++] = sortedTeam[1];
+        }
+        
+        cout << "----------------------------\n";
+    }
+}
+
+void DisplayKnockoutStage() {
+    system("cls");
+    
+    cout << "-------------------------------------" << endl;
+    cout << "Quarter Final" << endl;
+    cout << "-------------------------------------" << endl;
+    cout << "Game One: " << topTeams[0].name << " Vs " << topTeams[2].name << endl;
+    cout << "Game Two: " << topTeams[1].name << " Vs " << topTeams[3].name << endl;
+    cout << "Game Three: " << topTeams[4].name << " Vs " << topTeams[6].name << endl;
+    cout << "Game Four: " << topTeams[5].name << " Vs " << topTeams[7].name << endl;
+    
+    cout << "\n-------------------------------------\n" << endl;
+    cout << "Semi Final" << endl;
+    cout << "-------------------------------------" << endl;
+    cout << "Winner of Game One vs Winner of Game Two" << endl;
+    cout << "Winner of Game Three vs Winner of Game Four" << endl;
+    
+    cout << "\n-------------------------------------\n" << endl;
+    cout << "Final" << endl;
+    cout << "-------------------------------------" << endl;
+    cout << "Winner of Semi Final 1 vs Winner of Semi Final 2" << endl;
+}
+
+void userchoice(int input) {
+    switch (input) {
+    case 1:
+        AddTeams();
+        break;
+    case 2:
+        AddPlayer();
+        break;
+    case 3:
+        AddGroup();
+        break;
+    case 4:
+        DisplayGroupMatch();
+        break;
+    case 5:
+        UpdateStanding();
+        break;
+    case 6:
+        DisplayTopTeam();
+        break;
+    case 7:
+        DisplayKnockoutStage();
+        break;
+    case 8:
+        DisplayEverything();
+        break;
+    default:
+        cout << "Your input must be between 0 and 8" << endl;
+        break;
+    }
+}
+
+void Menu() {
+    int userInput = -1;
+    
+    while (userInput != 0) {
+        cout << "\n***************************\n";
+        cout << "******** Main Menu ********\n";
+        cout << "1. Add Team\n";
+        cout << "2. Add Player\n";
+        cout << "3. Add team to group\n";
+        cout << "4. Display Group Matches\n";
+        cout << "5. Update Standings\n";
+        cout << "6. Display Top Teams\n";
+        cout << "7. Display knockout stage\n";
+        cout << "8. Display Teams and their players\n";
+        cout << "0. Exit\n";
+        cout << "Enter Your Choice: ";
+        
+        cin >> userInput;
+        
+        if (cin.fail()) {
+            cout << "Invalid input. Please enter a number.\n";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+        else if (userInput == 0) {
+            cout << "Exiting.....";
+            break;
+        }
+        else if (userInput >= 1 && userInput <= 8) {
+            userchoice(userInput);
+        }
+        else {
+            cout << "Your input must be between 0 and 8" << endl;
+        }
+    }
+}
+
+int main() {
+    InitializeGroup();
+    Menu();
+    return 0;
+}
